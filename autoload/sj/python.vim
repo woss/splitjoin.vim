@@ -118,6 +118,28 @@ function! sj#python#JoinImport()
   return 1
 endfunction
 
+function! sj#python#SplitIfElse()
+  let lineno  = line('.')
+  let indent  = indent('.')
+  let line    = getline('.')
+  let pattern = '\v^(\s*)(.*) \= (.*) if (.*) else (.*)$'
+
+  if line =~ pattern
+    let body_when_true  = sj#ExtractRx(line, pattern, '\3')
+    let body_when_false = sj#ExtractRx(line, pattern, '\5')
+
+    let replacement = "if \\4:\r\\2 = ".body_when_true."\relse:\r\\2 = ".body_when_false
+    exe 's/'.pattern.'/'.escape(replacement, '/')
+
+    call sj#SetIndent(lineno, lineno + 3, indent)
+    normal! >>kk>>
+
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
 function! s:SplitList(regex, opening_char, closing_char)
   if sj#SearchUnderCursor(a:regex) <= 0
     return 0

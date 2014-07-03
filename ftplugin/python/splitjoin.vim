@@ -4,7 +4,8 @@ if !exists('b:splitjoin_split_callbacks')
         \ 'sj#python#SplitArray',
         \ 'sj#python#SplitTuple',
         \ 'sj#python#SplitStatement',
-        \ 'sj#python#SplitImport'
+        \ 'sj#python#SplitImport',
+        \ 'sj#python#SplitIfElse'
         \ ]
 endif
 
