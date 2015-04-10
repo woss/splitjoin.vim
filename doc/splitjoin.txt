@@ -616,6 +616,9 @@ Short arrays ~
     ]
 <
 If-clauses ~
+
+In order to control whether there will be curly brackets around the body or
+not, set the |g:splitjoin_php_if_clause_curly_braces| option.
 >
     if ($foo) { $a = "bar"; }
 
@@ -1055,6 +1058,37 @@ in:
 >
     if foo? then console.log bar
 <
+
+
+                                      *g:splitjoin_php_if_clause_curly_braces*
+>
+    let g:splitjoin_php_if_clause_curly_braces = 'sj'
+<
+
+Default value: 'SJ'
+
+This setting controls whether to put curly brackets around the body of an
+if-clause in PHP. For instance, both of these are valid syntax:
+>
+    if ($foo) { $bar; }
+    if ($foo) $bar;
+<
+The setting is a string that includes two letters, "s" and "j". The "s"
+controls what happens when splitting, while "j" -- when joining. This is
+similar to Vim settings like |'guioptions'| -- uppercase means "brackets" and
+lowercase means "no brackets". For example:
+>
+    " Add brackets when joining, but remove them when splitting:
+    let g:splitjoin_php_if_clause_curly_braces = 'sJ'
+
+    " No brackets when you join, but add them when you split
+    let g:splitjoin_php_if_clause_curly_braces = 'Sj'
+
+    " As minimal as possible -- no brackets anywhere:
+    let g:splitjoin_php_if_clause_curly_braces = 'sj'
+<
+Note that you always have to set both letters.
+
 
                                          *g:splitjoin_perl_brace_on_same_line*
 >

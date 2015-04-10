@@ -7,6 +7,10 @@ describe "php" do
     vim.set(:shiftwidth, 2)
   end
 
+  after(:each) do
+    vim.command('let g:splitjoin_php_if_clause_curly_braces = "SJ"')
+  end
+
   specify "arrays" do
     set_file_contents '<?php $foo = array("one" => "two", "three" => "four"); ?>'
 
@@ -65,6 +69,25 @@ describe "php" do
     assert_file_contents <<-EOF
       <?php
       if ($foo) { $a = "bar"; }
+      ?>
+    EOF
+
+    vim.command('let g:splitjoin_php_if_clause_curly_braces = "sj"')
+
+    split
+
+    assert_file_contents <<-EOF
+      <?php
+      if ($foo)
+        $a = "bar";
+      ?>
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      <?php
+      if ($foo) $a = "bar";
       ?>
     EOF
   end

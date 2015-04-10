@@ -60,7 +60,7 @@ function! sj#php#JoinHtmlTags()
 endfunction
 
 function! sj#php#SplitIfClause()
-  let pattern = '\<if\s*(.\{-})\s*{.*}'
+  let pattern = '\<if\s*(.\{-})\s*\S.*'
 
   if search(pattern, 'Wbc', line('.')) <= 0
     return 0
@@ -68,17 +68,26 @@ function! sj#php#SplitIfClause()
 
   normal! f(
   normal %
-  normal! f{
+  normal! l
 
-  let body = sj#GetMotion('Va{')
-  let body = substitute(body, '^{\s*\(.\{-}\)\s*}$', "{\n\\1\n}", '')
-  call sj#ReplaceMotion('Va{', body)
+  let body = sj#Trim(sj#GetMotion('v$'))
+
+  " remove curly brackets, if there are any
+  let body = substitute(body, '^{\s*\(.\{-}\)\s*}$', '\1', '')
+
+  if g:splitjoin_php_if_clause_curly_braces =~# 'J'
+    let body = " {\n".body."\n}\n"
+  else
+    let body = "\n".body."\n"
+  endif
+
+  call sj#ReplaceMotion('v$', body)
 
   return 1
 endfunction
 
 function! sj#php#JoinIfClause()
-  let pattern = '\<if\s*(.\{-})\s*{\s*$'
+  let pattern = '\<if\s*(.\{-})\s*\%({\s*\)\=$'
 
   if search(pattern, 'Wbc', line('.')) <= 0
     return 0
@@ -86,11 +95,33 @@ function! sj#php#JoinIfClause()
 
   normal! f(
   normal %
-  normal! f{
 
-  let body = sj#GetMotion('Va{')
-  let body = substitute(body, "\\s*\n\\s*", ' ', 'g')
-  call sj#ReplaceMotion('Va{', body)
+  if getline('.')[col('.') + 1:] =~ '^\s*{\s*$'
+    " existing curly brackets
+    normal! f{
+    let body = sj#GetMotion('Va{')
+    let body = substitute(body, "\\s*\n\\s*", ' ', 'g')
+
+    if g:splitjoin_php_if_clause_curly_braces =~# 'j'
+      " remove curly brackets
+      let body = substitute(body, '^{\s*\(.\{-}\)\s*}$', '\1', '')
+    endif
+
+    call sj#ReplaceMotion('Va{', body)
+  else
+    " no curly brackets, must be the next line
+    call sj#PushCursor()
+    normal! J
+    call sj#PopCursor()
+
+    if g:splitjoin_php_if_clause_curly_braces =~# 'J'
+      " add curly brackets
+      normal! l
+      let body = sj#GetMotion('v$')
+      let body = " { ".sj#Trim(body)." }\n"
+      call sj#ReplaceMotion('v$', body)
+    endif
+  endif
 
   return 1
 endfunction

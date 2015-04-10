@@ -37,6 +37,14 @@ if !exists('g:splitjoin_coffee_suffix_if_clause')
   let g:splitjoin_coffee_suffix_if_clause = 1
 endif
 
+if !exists('g:splitjoin_javascript_if_clause_curly_braces')
+  let g:splitjoin_javascript_if_clause_curly_braces = 'SJ'
+endif
+
+if !exists('g:splitjoin_php_if_clause_curly_braces')
+  let g:splitjoin_php_if_clause_curly_braces = 'SJ'
+endif
+
 if !exists('g:splitjoin_perl_brace_on_same_line')
   let g:splitjoin_perl_brace_on_same_line = 1
 endif
