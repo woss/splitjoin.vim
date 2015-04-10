@@ -8,6 +8,10 @@ describe "javascript" do
     vim.set(:shiftwidth, 2)
   end
 
+  after(:each) do
+    vim.command('let g:splitjoin_javascript_if_clause_curly_braces = "SJ"')
+  end
+
   specify "object literals" do
     set_file_contents "{ one: two, 'three': four }"
 
@@ -85,17 +89,6 @@ describe "javascript" do
     EOF
   end
 
-  specify "one-line ifs" do
-    joined_if = "if (isTrue()) do();"
-    split_if  = "if (isTrue()) {\n  do();\n}"
-
-    set_file_contents(joined_if)
-    split
-    assert_file_contents(split_if)
-    join
-    assert_file_contents(joined_if)
-  end
-
   specify "arguments" do
     joined_args = "var x = foo(arg1, arg2, 'arg3', 'arg4');"
     split_args  = <<-EOF
@@ -142,5 +135,41 @@ describe "javascript" do
     assert_file_contents(split_args_once)
     join
     assert_file_contents(joined_args)
+  end
+
+  specify "if-clauses" do
+    set_file_contents <<-EOF
+      if (foo) { var a = "bar"; }
+    EOF
+
+    vim.search('if')
+    split
+
+    assert_file_contents <<-EOF
+      if (foo) {
+        var a = "bar";
+      }
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      if (foo) { var a = "bar"; }
+    EOF
+
+    vim.command('let g:splitjoin_javascript_if_clause_curly_braces = "sj"')
+
+    split
+
+    assert_file_contents <<-EOF
+      if (foo)
+        var a = "bar";
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      if (foo) var a = "bar";
+    EOF
   end
 end

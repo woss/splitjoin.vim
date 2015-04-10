@@ -1033,7 +1033,7 @@ If it is set to 0, the result will be:
       :action,
       :subject
     )
->
+<
 
                                          *g:splitjoin_coffee_suffix_if_clause*
 >
@@ -1086,6 +1086,36 @@ lowercase means "no brackets". For example:
 
     " As minimal as possible -- no brackets anywhere:
     let g:splitjoin_php_if_clause_curly_braces = 'sj'
+<
+Note that you always have to set both letters.
+
+
+                               *g:splitjoin_javascript_if_clause_curly_braces*
+>
+    let g:splitjoin_javascript_if_clause_curly_braces = 'sj'
+<
+
+Default value: 'SJ'
+
+This setting controls whether to put curly brackets around the body of an
+if-clause in javascript. For instance, both of these are valid syntax:
+>
+    if (foo) { console.log("bar"); }
+    if (foo) console.log("bar");
+<
+The setting is a string that includes two letters, "s" and "j". The "s"
+controls what happens when splitting, while "j" -- when joining. This is
+similar to Vim settings like |'guioptions'| -- uppercase means "brackets" and
+lowercase means "no brackets". For example:
+>
+    " Add brackets when joining, but remove them when splitting:
+    let g:splitjoin_javascript_if_clause_curly_braces = 'sJ'
+
+    " No brackets when you join, but add them when you split
+    let g:splitjoin_javascript_if_clause_curly_braces = 'Sj'
+
+    " As minimal as possible -- no brackets anywhere:
+    let g:splitjoin_javascript_if_clause_curly_braces = 'sj'
 <
 Note that you always have to set both letters.
 

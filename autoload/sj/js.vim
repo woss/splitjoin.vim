@@ -137,38 +137,71 @@ function! sj#js#JoinArgs()
   return s:JoinList(['(', ')'])
 endfunction
 
-function! sj#js#SplitOneLineIf()
-  let line = getline('.')
-  if line =~ '^\s*if (.\+) .\+;'
-    let lines = []
-    " use regular vim movements to know where we have to split
-    normal! ^w%
-    let end_if = getpos('.')[2]
-    call add(lines, line[0:end_if] . '{')
-    call add(lines, sj#Trim(line[end_if :]))
-    call add(lines, '}')
+" Note: Copied from PHP case. Can't reuse due to setting name.
+function! sj#js#SplitIfClause()
+  let pattern = '\<if\s*(.\{-})\s*\S.*'
 
-    call sj#ReplaceMotion('V', join(lines, "\n"))
-
-    return 1
-  else
+  if search(pattern, 'Wbc', line('.')) <= 0
     return 0
   endif
+
+  normal! f(
+  normal %
+  normal! l
+
+  let body = sj#Trim(sj#GetMotion('v$'))
+
+  " remove curly brackets, if there are any
+  let body = substitute(body, '^{\s*\(.\{-}\)\s*}$', '\1', '')
+
+  if g:splitjoin_javascript_if_clause_curly_braces =~# 'J'
+    let body = " {\n".body."\n}\n"
+  else
+    let body = "\n".body."\n"
+  endif
+
+  call sj#ReplaceMotion('v$', body)
+
+  return 1
 endfunction
 
-function! sj#js#JoinOneLineIf()
-  let if_line_no = line('.')
-  let if_line = getline('.')
-  let end_line_no = if_line_no + 2
-  let end_line = getline(end_line_no)
+" Note: Copied from PHP case. Can't reuse due to setting name.
+function! sj#js#JoinIfClause()
+  let pattern = '\<if\s*(.\{-})\s*\%({\s*\)\=$'
 
-  if if_line !~ '^\s*if (.+) {' && end_line !~ '^\s*}\s*$'
+  if search(pattern, 'Wbc', line('.')) <= 0
     return 0
   endif
 
-  let body = sj#Trim(getline(if_line_no + 1))
-  let new  = if_line[:-2] . body
+  normal! f(
+  normal %
 
-  call sj#ReplaceLines(if_line_no, end_line_no, new)
+  if getline('.')[col('.') + 1:] =~ '^\s*{\s*$'
+    " existing curly brackets
+    normal! f{
+    let body = sj#GetMotion('Va{')
+    let body = substitute(body, "\\s*\n\\s*", ' ', 'g')
+
+    if g:splitjoin_javascript_if_clause_curly_braces =~# 'j'
+      " remove curly brackets
+      let body = substitute(body, '^{\s*\(.\{-}\)\s*}$', '\1', '')
+    endif
+
+    call sj#ReplaceMotion('Va{', body)
+  else
+    " no curly brackets, must be the next line
+    call sj#PushCursor()
+    normal! J
+    call sj#PopCursor()
+
+    if g:splitjoin_javascript_if_clause_curly_braces =~# 'J'
+      " add curly brackets
+      normal! l
+      let body = sj#GetMotion('v$')
+      let body = " { ".sj#Trim(body)." }\n"
+      call sj#ReplaceMotion('v$', body)
+    endif
+  endif
+
   return 1
 endfunction
