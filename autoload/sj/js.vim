@@ -137,71 +137,10 @@ function! sj#js#JoinArgs()
   return s:JoinList(['(', ')'])
 endfunction
 
-" Note: Copied from PHP case. Can't reuse due to setting name.
 function! sj#js#SplitIfClause()
-  let pattern = '\<if\s*(.\{-})\s*\S.*'
-
-  if search(pattern, 'Wbc', line('.')) <= 0
-    return 0
-  endif
-
-  normal! f(
-  normal %
-  normal! l
-
-  let body = sj#Trim(sj#GetMotion('v$'))
-
-  " remove curly brackets, if there are any
-  let body = substitute(body, '^{\s*\(.\{-}\)\s*}$', '\1', '')
-
-  if g:splitjoin_javascript_if_clause_curly_braces =~# 'J'
-    let body = " {\n".body."\n}\n"
-  else
-    let body = "\n".body."\n"
-  endif
-
-  call sj#ReplaceMotion('v$', body)
-
-  return 1
+  return sj#shared#SplitCurlyBracketIfClause(g:splitjoin_javascript_if_clause_curly_braces)
 endfunction
 
-" Note: Copied from PHP case. Can't reuse due to setting name.
 function! sj#js#JoinIfClause()
-  let pattern = '\<if\s*(.\{-})\s*\%({\s*\)\=$'
-
-  if search(pattern, 'Wbc', line('.')) <= 0
-    return 0
-  endif
-
-  normal! f(
-  normal %
-
-  if getline('.')[col('.') + 1:] =~ '^\s*{\s*$'
-    " existing curly brackets
-    normal! f{
-    let body = sj#GetMotion('Va{')
-    let body = substitute(body, "\\s*\n\\s*", ' ', 'g')
-
-    if g:splitjoin_javascript_if_clause_curly_braces =~# 'j'
-      " remove curly brackets
-      let body = substitute(body, '^{\s*\(.\{-}\)\s*}$', '\1', '')
-    endif
-
-    call sj#ReplaceMotion('Va{', body)
-  else
-    " no curly brackets, must be the next line
-    call sj#PushCursor()
-    normal! J
-    call sj#PopCursor()
-
-    if g:splitjoin_javascript_if_clause_curly_braces =~# 'J'
-      " add curly brackets
-      normal! l
-      let body = sj#GetMotion('v$')
-      let body = " { ".sj#Trim(body)." }\n"
-      call sj#ReplaceMotion('v$', body)
-    endif
-  endif
-
-  return 1
+  return sj#shared#JoinCurlyBracketIfClause(g:splitjoin_javascript_if_clause_curly_braces)
 endfunction
