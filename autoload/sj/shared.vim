@@ -19,7 +19,7 @@ function! sj#shared#SplitCurlyBracketIfClause(curly_braces)
   " remove curly brackets, if there are any
   let body = substitute(body, '^{\s*\(.\{-}\)\s*}$', '\1', '')
 
-  if a:curly_braces =~# 'J'
+  if a:curly_braces =~# 'S'
     let body = " {\n".body."\n}"
   else
     let body = "\n".body
