@@ -585,6 +585,8 @@ function! sj#ruby#JoinContinuedMethodCall()
 
   let end_lineno = line('.') - 1
 
+  echomsg string([start_lineno, end_lineno])
+
   exe start_lineno.','.end_lineno.'s/\n\_s*//'
 endfunction
 
